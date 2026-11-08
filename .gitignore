@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+data/raw/
+data/processed/
+weather_raw/
+rainfall_raw_data.zip
+.DS_Store
