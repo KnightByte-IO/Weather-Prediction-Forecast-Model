@@ -1,0 +1,26 @@
+daily LSTM windows: train 32,580 val 3,650 test 10,280
+  [daily] epoch  1  train 0.8560  val 0.7766
+  [daily] epoch  2  train 0.6903  val 0.7418
+  [daily] epoch  3  train 0.6667  val 0.7562
+  [daily] epoch  4  train 0.6508  val 0.7642
+  [daily] epoch  5  train 0.6410  val 0.7553
+  [daily] epoch  6  train 0.6248  val 0.7546
+ h model   auc  brier  mae_mm
+ 1  LSTM 0.919  0.112   3.454
+ 2  LSTM 0.905  0.122   3.725
+ 3  LSTM 0.898  0.126   3.847
+ 4  LSTM 0.893  0.129   3.898
+ 5  LSTM 0.889  0.131   3.937
+ 6  LSTM 0.886  0.133   3.973
+ 7  LSTM 0.882  0.136   3.995
+hourly LSTM windows: train 262,730 val 14,600 test 82,640
+  [hourly] epoch  1  train 0.3293  val 0.2905
+  [hourly] epoch  2  train 0.3060  val 0.2907
+  [hourly] epoch  3  train 0.3000  val 0.2917
+  [hourly] epoch  4  train 0.2954  val 0.2928
+  [hourly] epoch  5  train 0.2864  val 0.2965
+ block model   auc  brier  mae_mm
+  1-6h  LSTM 0.900  0.081   0.202
+ 7-12h  LSTM 0.882  0.087   0.215
+13-24h  LSTM 0.871  0.090   0.213
+25-48h  LSTM 0.851  0.096   0.219

@@ -17,8 +17,8 @@ from predict import forecast_for  # noqa: E402
 st.set_page_config(page_title="Rainfall Forecast India (ML)", page_icon="🌧️", layout="wide")
 
 ML_COLOR, NWP_COLOR = "#2a78d6", "#eb6834"   # categorical slots 1 and 2
-LAYOUT = dict(height=320, margin=dict(t=50, b=10, l=10, r=10), hovermode="x unified",
-              legend=dict(orientation="h", y=1.02, yanchor="bottom", x=0),
+LAYOUT = dict(height=340, margin=dict(t=85, b=10, l=10, r=10), hovermode="x unified",
+              legend=dict(orientation="h", y=1.0, yanchor="bottom", x=0),
               xaxis=dict(showgrid=False), plot_bgcolor="rgba(0,0,0,0)")
 
 
@@ -37,7 +37,7 @@ def chance_chart(x, ml_prob, official_pct, title, bars=False):
         if official_pct is not None:
             fig.add_scatter(x=x, y=official_pct, name="Official forecast",
                             line=dict(color=NWP_COLOR, width=2), hovertemplate="%{y:.0f}%")
-    fig.update_layout(title=title, barmode="group", bargap=0.3, bargroupgap=0.1,
+    fig.update_layout(title=dict(text=title, y=0.97, yanchor="top"), barmode="group", bargap=0.3, bargroupgap=0.1,
                       yaxis=dict(range=[0, 100], ticksuffix="%", gridcolor="rgba(128,128,128,0.15)"),
                       **LAYOUT)
     return fig
@@ -51,7 +51,7 @@ def amount_chart(x, ml_mm, official_mm, title):
     if official_mm is not None:
         fig.add_bar(x=x, y=official_mm, name="Official forecast", marker_color=NWP_COLOR,
                     marker_cornerradius=4, hovertemplate="%{y:.1f} mm")
-    fig.update_layout(title=title, barmode="group", bargap=0.3, bargroupgap=0.1,
+    fig.update_layout(title=dict(text=title, y=0.97, yanchor="top"), barmode="group", bargap=0.3, bargroupgap=0.1,
                       yaxis=dict(rangemode="tozero", ticksuffix=" mm", gridcolor="rgba(128,128,128,0.15)"),
                       **LAYOUT)
     return fig

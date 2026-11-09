@@ -1,0 +1,74 @@
+
+=== horizon 1 day(s): train 32,870  val 3,650  test 10,340
+  LogisticRegression AUC 0.929  Brier 0.106  BSS +0.208  F1 0.826
+  RandomForest       AUC 0.932  Brier 0.104  BSS +0.227  F1 0.828
+  XGBoost            AUC 0.933  Brier 0.103  BSS +0.228  F1 0.827
+  LightGBM           AUC 0.933  Brier 0.103  BSS +0.230  F1 0.830
+  RandomForest       MAE 3.48 mm  RMSE 7.86 mm
+  XGBoost            MAE 3.35 mm  RMSE 7.89 mm
+  LightGBM           MAE 3.33 mm  RMSE 7.84 mm
+
+=== horizon 2 day(s): train 32,870  val 3,650  test 10,330
+  LogisticRegression AUC 0.903  Brier 0.123  BSS +0.083  F1 0.806
+  RandomForest       AUC 0.907  Brier 0.121  BSS +0.100  F1 0.807
+  XGBoost            AUC 0.906  Brier 0.121  BSS +0.095  F1 0.808
+  LightGBM           AUC 0.906  Brier 0.121  BSS +0.094  F1 0.805
+  RandomForest       MAE 4.10 mm  RMSE 8.90 mm
+  XGBoost            MAE 3.93 mm  RMSE 9.06 mm
+  LightGBM           MAE 3.91 mm  RMSE 8.99 mm
+
+=== horizon 3 day(s): train 32,870  val 3,650  test 10,320
+  LogisticRegression AUC 0.894  Brier 0.129  BSS +0.041  F1 0.798
+  RandomForest       AUC 0.899  Brier 0.126  BSS +0.061  F1 0.798
+  XGBoost            AUC 0.896  Brier 0.127  BSS +0.049  F1 0.797
+  LightGBM           AUC 0.896  Brier 0.127  BSS +0.053  F1 0.799
+  RandomForest       MAE 4.34 mm  RMSE 9.25 mm
+  XGBoost            MAE 4.13 mm  RMSE 9.37 mm
+  LightGBM           MAE 4.13 mm  RMSE 9.36 mm
+
+=== horizon 4 day(s): train 32,870  val 3,650  test 10,310
+  LogisticRegression AUC 0.891  Brier 0.131  BSS +0.022  F1 0.795
+  RandomForest       AUC 0.895  Brier 0.128  BSS +0.042  F1 0.794
+  XGBoost            AUC 0.892  Brier 0.130  BSS +0.033  F1 0.791
+  LightGBM           AUC 0.891  Brier 0.130  BSS +0.029  F1 0.792
+  RandomForest       MAE 4.40 mm  RMSE 9.37 mm
+  XGBoost            MAE 4.25 mm  RMSE 9.56 mm
+  LightGBM           MAE 4.22 mm  RMSE 9.53 mm
+
+=== horizon 5 day(s): train 32,870  val 3,650  test 10,300
+  LogisticRegression AUC 0.888  Brier 0.133  BSS +0.011  F1 0.782
+  RandomForest       AUC 0.892  Brier 0.130  BSS +0.031  F1 0.786
+  XGBoost            AUC 0.890  Brier 0.132  BSS +0.018  F1 0.788
+  LightGBM           AUC 0.889  Brier 0.132  BSS +0.018  F1 0.780
+  RandomForest       MAE 4.42 mm  RMSE 9.44 mm
+  XGBoost            MAE 4.24 mm  RMSE 9.58 mm
+  LightGBM           MAE 4.24 mm  RMSE 9.59 mm
+
+=== horizon 6 day(s): train 32,870  val 3,650  test 10,290
+  LogisticRegression AUC 0.886  Brier 0.133  BSS +0.005  F1 0.782
+  RandomForest       AUC 0.891  Brier 0.130  BSS +0.026  F1 0.780
+  XGBoost            AUC 0.889  Brier 0.132  BSS +0.014  F1 0.780
+  LightGBM           AUC 0.888  Brier 0.132  BSS +0.012  F1 0.770
+  RandomForest       MAE 4.44 mm  RMSE 9.45 mm
+  XGBoost            MAE 4.27 mm  RMSE 9.63 mm
+  LightGBM           MAE 4.26 mm  RMSE 9.62 mm
+
+=== horizon 7 day(s): train 32,870  val 3,650  test 10,280
+  LogisticRegression AUC 0.886  Brier 0.134  BSS +0.002  F1 0.782
+  RandomForest       AUC 0.890  Brier 0.131  BSS +0.021  F1 0.777
+  XGBoost            AUC 0.888  Brier 0.133  BSS +0.010  F1 0.780
+  LightGBM           AUC 0.887  Brier 0.133  BSS +0.009  F1 0.774
+  RandomForest       MAE 4.49 mm  RMSE 9.50 mm
+  XGBoost            MAE 4.31 mm  RMSE 9.64 mm
+  LightGBM           MAE 4.29 mm  RMSE 9.64 mm
+
+Test-period AUC by horizon:
+h                          1      2      3      4      5      6      7
+model                                                                 
+Climatology            0.885  0.885  0.885  0.885  0.885  0.886  0.886
+Ensemble(RF+XGB+LGBM)  0.933  0.908  0.898  0.894  0.892  0.890  0.889
+LightGBM               0.933  0.906  0.896  0.891  0.889  0.888  0.887
+LogisticRegression     0.929  0.903  0.894  0.891  0.888  0.886  0.886
+Persistence            0.826  0.787  0.771  0.763  0.754  0.750  0.745
+RandomForest           0.932  0.907  0.899  0.895  0.892  0.891  0.890
+XGBoost                0.933  0.906  0.896  0.892  0.890  0.889  0.888

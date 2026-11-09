@@ -1,0 +1,11 @@
+city,region,days,first_day,last_day,mean_annual_rain_mm,rainy_day_pct,monsoon_share_pct
+Kochi,Kerala (both monsoons),4687,2014-01-01,2026-10-31,2892.9,67.7,56.0
+Guwahati,North-east (very wet),4687,2014-01-01,2026-10-31,2516.2,52.5,70.7
+Mumbai,West coast (SW monsoon),4687,2014-01-01,2026-10-31,2271.0,36.5,92.8
+Kolkata,Gangetic delta,4687,2014-01-01,2026-10-31,1886.3,44.5,72.3
+Dhanbad,Chota Nagpur plateau,4687,2014-01-01,2026-10-31,1494.6,38.0,80.4
+Nagpur,Central India,4687,2014-01-01,2026-10-31,1326.4,29.1,90.0
+Chennai,East coast (NE monsoon),4687,2014-01-01,2026-10-31,1289.9,37.7,35.2
+Bengaluru,Deccan plateau,4687,2014-01-01,2026-10-31,1024.4,40.2,56.4
+Delhi,North plains,4687,2014-01-01,2026-10-31,758.7,24.3,77.6
+Jaipur,Semi-arid north-west,4687,2014-01-01,2026-10-31,618.3,19.9,85.7

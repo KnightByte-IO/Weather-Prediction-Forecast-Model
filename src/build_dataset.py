@@ -7,7 +7,7 @@ Output: data/processed/daily_features.parquet
 """
 import pandas as pd
 
-from config import PROCESSED_DIR, RAIN_THRESHOLD_MM, RAW_DIR, REPORT_DIR, TRAIN_CITIES
+from config import MODEL_DIR, PROCESSED_DIR, RAIN_THRESHOLD_MM, RAW_DIR, REPORT_DIR, TRAIN_CITIES
 from features import (add_daily_features, add_targets, attach_climatology,
                       climatology_table, hourly_to_daily)
 
@@ -51,6 +51,8 @@ def main():
 
     daily.to_parquet(PROCESSED_DIR / "daily_features.parquet", index=False)
     clim.to_parquet(PROCESSED_DIR / "climatology.parquet", index=False)
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    clim.to_parquet(MODEL_DIR / "daily_climatology.parquet", index=False)  # used by the app
 
     # Short summary table for the report
     ok = daily.dropna(subset=["precip_sum"])

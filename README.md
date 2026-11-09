@@ -81,7 +81,34 @@ streamlit run app.py
 * **MAE / RMSE (mm)** for rainfall amounts.
 
 ## Results
-See `reports/results_summary.md` and `reports/figures/` (filled in after training).
+
+All numbers are from the **untouched test period (Jan 2024 to Oct 2026)**, pooled over the 10 cities. Full tables are in `reports/results_summary.md` and charts in `reports/figures/`.
+
+![App screenshot](reports/figures/app_screenshot.png)
+
+**Will it rain? (≥ 1 mm in a day)**
+
+| Model | AUC, day 1 (today) | AUC, day 2 | AUC, day 3 | AUC, day 7 | Brier skill, day 1 |
+|---|---|---|---|---|---|
+| Climatology baseline | 0.888 | 0.888 | 0.887 | 0.886 | 0 |
+| Logistic Regression | 0.930 | 0.905 | 0.897 | 0.886 | 0.20 |
+| Random Forest | 0.933 | 0.909 | 0.901 | 0.890 | 0.22 |
+| XGBoost | 0.933 | 0.908 | 0.898 | 0.888 | 0.23 |
+| LightGBM | 0.934 | 0.908 | 0.898 | 0.887 | 0.23 |
+| LSTM | 0.919 | 0.905 | 0.898 | 0.882 | 0.15 |
+| **Final ensemble (RF + XGB + LGBM + LSTM)** | **0.933** | **0.910** | **0.901** | **0.890** | **0.23** |
+
+On day 1 the tree ensemble gets **85.6% accuracy** (F1 0.83, CSI 0.71), against 80.8% for climatology and 83.1% for "same as yesterday". It catches 85% of rainy days (probability of detection) with an 18% false-alarm ratio.
+
+**How much rain?** Day-1 mean absolute error is 3.3 mm (LightGBM), against 4.3 mm for climatology.
+
+**Hourly model, next 48 hours (rain ≥ 0.2 mm in an hour):** LightGBM AUC is 0.91 for the next 1–6 hours, falling to 0.86 at 25–48 hours (hourly climatology: 0.84). The LSTM is close behind (0.90 → 0.85) and has the lowest error in mm.
+
+**What this means**
+* Machine learning clearly beats the baselines for **today and tomorrow**: day 1 is 23% better than climatology on the Brier score.
+* Skill falls quickly with lead time. By days 5–7 the models are only 2–3% better than climatology, because past local weather can't see weather systems that haven't arrived yet. This is the expected limit of purely statistical forecasting and the main reason official forecasts use physics-based models.
+* The most important features are the day's rain total, the number of rainy hours, the climatological rain chance for the target day, and evening cloud and rain (`reports/figures/feature_importance_day1.png`).
+* The AUC values are pooled across very different climates (Jaipur to Kochi), which makes even climatology score high. The Brier skill score is the fairer measure of what the models add.
 
 ## Limitations
 * The models are trained on ERA5 reanalysis (about 25–30 km grid), not on rain-gauge observations, so very local thunderstorms are smoothed out.

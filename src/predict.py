@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import requests
 
-from config import FORECAST_URL, MODEL_DIR, PROCESSED_DIR, TIMEZONE, TRAIN_CITIES
+from config import FORECAST_URL, MODEL_DIR, TIMEZONE, TRAIN_CITIES
 from features import HORIZONS, add_daily_features, hourly_to_daily
 from hourly_features import (HOURLY_FEATURES, MAX_LEAD, make_samples,
                              prepare_hourly)
@@ -40,11 +40,12 @@ def fetch_weather(lat: float, lon: float):
     for attempt in range(4):
         try:
             r = requests.get(FORECAST_URL, params=params, timeout=60)
-            break
+            if r.status_code < 500:
+                break
         except (requests.ConnectionError, requests.Timeout):
             if attempt == 3:
                 raise
-            time.sleep(2 ** attempt)
+        time.sleep(2 ** attempt)
     r.raise_for_status()
     js = r.json()
     h = pd.DataFrame(js["hourly"])
@@ -78,7 +79,7 @@ def _load(path):
 
 @lru_cache(maxsize=None)
 def _daily_clim():
-    return pd.read_parquet(PROCESSED_DIR / "climatology.parquet")
+    return pd.read_parquet(MODEL_DIR / "daily_climatology.parquet")
 
 
 @lru_cache(maxsize=None)
