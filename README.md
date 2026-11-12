@@ -54,6 +54,8 @@ reports/                   metrics CSVs, figures, results_summary.md
 
 ## How to run
 
+Needs **Python 3.12 or newer**. `requirements.txt` pins scikit-learn, XGBoost and LightGBM to the exact versions used for training, so the saved models load without version warnings.
+
 ```bash
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
