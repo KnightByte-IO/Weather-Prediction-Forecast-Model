@@ -26,8 +26,10 @@ FORECAST_HOURLY = [
     "vapour_pressure_deficit", "precipitation_probability", "weather_code",
 ]
 FORECAST_DAILY = ["precipitation_sum", "precipitation_probability_max",
-                  "temperature_2m_max", "temperature_2m_min", "weather_code"]
+                  "temperature_2m_max", "temperature_2m_min", "relative_humidity_2m_mean",
+                  "wind_speed_10m_max", "weather_code"]
 TREE_MODELS = ("RandomForest", "XGBoost", "LightGBM")
+WEATHER_VARS = ("t_max", "t_min", "rh_mean", "ws_max")   # see train_weather.py
 
 
 # ------------------------------------------------------------------ data
@@ -83,6 +85,12 @@ def _daily_clim():
 
 
 @lru_cache(maxsize=None)
+def _weather_clim():
+    path = MODEL_DIR / "weather_climatology.parquet"
+    return pd.read_parquet(path) if path.exists() else None
+
+
+@lru_cache(maxsize=None)
 def _hourly_clim():
     return pd.read_parquet(MODEL_DIR / "hourly" / "hourly_climatology.parquet")
 
@@ -129,6 +137,9 @@ def predict_daily(hourly_obs: pd.DataFrame, lat, lon, elevation, clim_city):
     base_date = last["date"].iloc[0]
     clim = _daily_clim()
     clim = clim[clim["city"] == clim_city].set_index("doy")
+    wclim = _weather_clim()
+    if wclim is not None:
+        wclim = wclim[wclim["city"] == clim_city].set_index("doy")
     rows = []
     for h in HORIZONS:
         target = base_date + pd.Timedelta(days=h)
@@ -141,8 +152,17 @@ def predict_daily(hourly_obs: pd.DataFrame, lat, lon, elevation, clim_city):
             probs[name] = float(c["model"].predict_proba(last[c["features"]])[:, 1][0])
             r = _load(MODEL_DIR / "daily" / f"reg_{name}_h{h}.joblib")
             mms[name] = max(0.0, float(r["model"].predict(last[r["features"]])[0]))
+        weather = {}
+        if wclim is not None:
+            for v in WEATHER_VARS:
+                last[f"clim_{v}_{h}"] = wclim.loc[doy, f"clim_{v}"]
+            for v in WEATHER_VARS:
+                path = MODEL_DIR / "weather" / f"{v}_h{h}.joblib"
+                if path.exists():
+                    w = _load(path)
+                    weather[f"ml_{v}"] = float(w["model"].predict(last[w["features"]])[0])
         rows.append({"date": target, "h": h, "clim_p": last[f"clim_p_{h}"].iloc[0], **{
-            f"p_{k}": v for k, v in probs.items()}, **{f"mm_{k}": v for k, v in mms.items()}})
+            f"p_{k}": v for k, v in probs.items()}, **{f"mm_{k}": v for k, v in mms.items()}, **weather})
     out = pd.DataFrame(rows)
     lstm = _lstm_predict("daily", daily, [lat, lon, elevation])
     if lstm is not None:

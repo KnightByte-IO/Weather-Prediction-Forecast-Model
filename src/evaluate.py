@@ -12,6 +12,7 @@ import pandas as pd  # noqa: E402
 from sklearn.metrics import brier_score_loss, roc_auc_score  # noqa: E402
 
 from config import PROCESSED_DIR, REPORT_DIR  # noqa: E402
+from train_weather import TARGETS  # noqa: E402
 
 FIG = REPORT_DIR / "figures"
 # Fixed categorical order (validated palette): one colour per model, never re-used
@@ -160,6 +161,54 @@ def hourly_plot():
     plt.close(fig)
 
 
+def rain_accuracy_plot():
+    """Share of days with the rain / no-rain call right, by lead day."""
+    m = pd.read_csv(REPORT_DIR / "daily_metrics.csv")
+    m = m[m.task == "rain_yes_no"]
+    fig, ax = plt.subplots(figsize=(7, 4))
+    for model, color, style in (("Ensemble(RF+XGB+LGBM)", COLORS["Ensemble"], "-"),
+                                ("Persistence", COLORS["Persistence"], "--"),
+                                ("Climatology", COLORS["Climatology"], "--")):
+        g = m[m.model == model].sort_values("h")
+        ax.plot(g["h"], 100 * g["accuracy"], style, marker="o", color=color,
+                label="ML ensemble" if model.startswith("Ensemble") else model)
+    ax.set_xlabel("Days ahead (1 = today)")
+    ax.set_ylabel("Days called correctly (%)")
+    ax.set_title("Rain / no rain: accuracy on 2024-2026 test data")
+    ax.set_xticks(range(1, 8))
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    fig.savefig(FIG / "rain_accuracy_by_day.png")
+    plt.close(fig)
+
+
+def weather_plot():
+    """Temperature, humidity and wind: mean absolute error by lead day, one panel per variable."""
+    p = REPORT_DIR / "weather_metrics.csv"
+    if not p.exists():
+        return None
+    m = pd.read_csv(p)
+    fig, axes = plt.subplots(2, 2, figsize=(10, 6.5))
+    for ax, (var, g) in zip(np.ravel(axes), m.groupby("variable", sort=False)):
+        for model, color, style in (("LightGBM", COLORS["LightGBM"], "-"),
+                                    ("LinearRegression", COLORS["LogisticRegression"], "-"),
+                                    ("Persistence", COLORS["Persistence"], "--"),
+                                    ("Climatology", COLORS["Climatology"], "--")):
+            x = g[g.model == model].sort_values("h")
+            ax.plot(x["h"], x["mae"], style, marker="o", color=color, label=model)
+        ax.set_title(f"{g.label.iloc[0]} ({g.unit.iloc[0]})")
+        ax.set_xticks(range(1, 8))
+        ax.set_ylim(bottom=0)
+    axes[0, 0].legend(frameon=False, fontsize=8)
+    fig.supxlabel("Days ahead (1 = today)")
+    fig.supylabel("Mean absolute error (lower is better)")
+    fig.suptitle("Temperature, humidity and wind forecasts on 2024-2026 test data", fontweight="bold")
+    fig.tight_layout()
+    fig.savefig(FIG / "weather_mae_by_day.png")
+    plt.close(fig)
+    return m
+
+
 def main():
     FIG.mkdir(parents=True, exist_ok=True)
     pred, res = daily_results()
@@ -175,6 +224,8 @@ def main():
     monthly_climate()
     example_timeseries(pred, "Mumbai", 2024)
     hourly_plot()
+    rain_accuracy_plot()
+    wmet = weather_plot()
 
     auc = res.pivot(index="model", columns="h", values="auc").round(3)
     bss = res.pivot(index="model", columns="h", values="bss").round(3)
@@ -186,6 +237,18 @@ def main():
     reg = reg[reg.task == "rain_mm"].pivot(index="model", columns="h", values="mae_mm").round(2)
     reg.columns = [f"Day {h}" for h in reg.columns]
     lines += ["## Rain amount, mean absolute error (mm)", "", reg.to_markdown(), ""]
+    acc = pd.read_csv(REPORT_DIR / "daily_metrics.csv")
+    acc = (100 * acc[acc.task == "rain_yes_no"].pivot(index="model", columns="h", values="accuracy")).round(1)
+    acc.columns = [f"Day {h}" for h in acc.columns]
+    lines += ["## Rain / no rain, accuracy (% of days called correctly)", "", acc.to_markdown(), ""]
+    if wmet is not None:
+        for col, name in (("mae", "mean absolute error"), ("within_tol_pct", "% of days within tolerance")):
+            for var, g in wmet.groupby("variable", sort=False):
+                t = g.pivot(index="model", columns="h", values=col).round(2 if col == "mae" else 1)
+                t.columns = [f"Day {h}" for h in t.columns]
+                unit = g.unit.iloc[0]
+                tol = f" (within ±{TARGETS[var][2]:g} {unit})" if col != "mae" else f" ({unit})"
+                lines += [f"## {g.label.iloc[0]}, {name}{tol}", "", t.to_markdown(), ""]
     hp = REPORT_DIR / "hourly_metrics.csv"
     if hp.exists():
         lines += ["## Hourly model (next 48 h)", "", pd.read_csv(hp).round(3).to_markdown(index=False), ""]
