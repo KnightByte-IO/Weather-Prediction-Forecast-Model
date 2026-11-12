@@ -95,36 +95,29 @@ def _hourly_clim():
     return pd.read_parquet(MODEL_DIR / "hourly" / "hourly_climatology.parquet")
 
 
+@lru_cache(maxsize=None)
 def _lstm(name):
-    try:
-        import torch
-        from train_lstm import SeqModel
-    except Exception:
-        return None
-    path = MODEL_DIR / "lstm" / f"{name}_lstm.pt"
+    """LSTM weights run with NumPy (models/lstm/*.npz), so the app does not need PyTorch."""
+    path = MODEL_DIR / "lstm" / f"{name}_lstm.npz"
     if not path.exists():
         return None
-    ck = torch.load(path, weights_only=False)
-    m = SeqModel(len(ck["seq_cols"]), len(ck["static_cols"]), ck["n_out"], hidden=ck.get("hidden", 96))
-    m.load_state_dict(ck["state"])
-    m.eval()
-    return m, ck
+    from lstm_numpy import NumpyLSTM
+    m = NumpyLSTM(path)
+    return m, m.meta
 
 
 def _lstm_predict(name, seq_df, static):
     got = _lstm(name)
     if got is None:
         return None
-    import torch
     m, ck = got
     x = seq_df[ck["seq_cols"]].to_numpy("float32")[-ck["seq_len"]:]
     if len(x) < ck["seq_len"]:
         return None
     x = np.nan_to_num((x - ck["mu"]) / ck["sd"]).astype("float32")
     s = ((np.asarray(static, "float32") - ck["smu"]) / ck["ssd"]).astype("float32")
-    with torch.no_grad():
-        lo, mm = m(torch.from_numpy(x)[None], torch.from_numpy(s)[None])
-    return torch.sigmoid(lo)[0].numpy(), np.expm1(mm[0].numpy().clip(0, 6.2))
+    logit, mm = m(x, s)
+    return 1.0 / (1.0 + np.exp(-logit)), np.expm1(np.clip(mm, 0, 6.2))
 
 
 # ----------------------------------------------------------- predictions

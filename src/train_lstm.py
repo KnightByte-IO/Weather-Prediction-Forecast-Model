@@ -19,6 +19,7 @@ from sklearn.metrics import brier_score_loss, mean_absolute_error, roc_auc_score
 from config import MODEL_DIR, PROCESSED_DIR, RAIN_THRESHOLD_MM, RAW_DIR, REPORT_DIR, TRAIN_CITIES
 from features import HORIZONS
 from hourly_features import MAX_LEAD, WET_HOUR_MM, prepare_hourly
+from lstm_numpy import export_npz
 
 torch.manual_seed(42)
 np.random.seed(42)
@@ -196,6 +197,7 @@ def train_daily():
     torch.save({"state": model.state_dict(), "mu": mu, "sd": sd, "smu": smu, "ssd": ssd,
                 "seq_cols": DAILY_SEQ_COLS, "static_cols": STATIC_COLS,
                 "seq_len": seq_len, "n_out": n_out}, OUT / "daily_lstm.pt")
+    export_npz(OUT / "daily_lstm.pt")          # NumPy copy used by the app
 
     p, m, yp, ym = predict(model, mk(ite))
     rows, pred_rows = [], []
@@ -247,6 +249,7 @@ def train_hourly():
     torch.save({"state": model.state_dict(), "mu": mu, "sd": sd, "smu": smu, "ssd": ssd,
                 "seq_cols": HOURLY_SEQ_COLS, "static_cols": STATIC_COLS,
                 "seq_len": seq_len, "n_out": n_out, "hidden": 128}, OUT / "hourly_lstm.pt")
+    export_npz(OUT / "hourly_lstm.pt")         # NumPy copy used by the app
 
     p, m, yp, ym = predict(model, mk(ite))
     blocks = {"1-6h": range(0, 6), "7-12h": range(6, 12), "13-24h": range(12, 24), "25-48h": range(24, 48)}

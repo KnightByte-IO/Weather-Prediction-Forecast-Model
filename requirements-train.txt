@@ -1,0 +1,5 @@
+# Everything needed to download data, retrain all models and make the report.
+-r requirements.txt
+torch>=2.2
+matplotlib>=3.8
+tabulate>=0.9

@@ -46,6 +46,7 @@ src/
   train_daily.py           7-day models + baselines + metrics
   train_hourly.py          48-hour LightGBM model
   train_lstm.py            daily and hourly LSTMs (PyTorch)
+  lstm_numpy.py            runs the trained LSTMs with NumPy for the app
   train_weather.py         7-day temperature, humidity and wind models
   evaluate.py              report figures and results_summary.md
   predict.py               live predictions for any Indian location
@@ -56,11 +57,14 @@ reports/                   metrics CSVs, figures, results_summary.md
 
 ## How to run
 
-Needs **Python 3.12 or newer**. `requirements.txt` pins scikit-learn, XGBoost and LightGBM to the exact versions used for training, so the saved models load without version warnings.
+Needs **Python 3.12 or newer**. Both requirement files pin scikit-learn, XGBoost and LightGBM to the exact versions used for training, so the saved models load without version warnings.
+
+* `requirements.txt`: just the web app (no PyTorch; the LSTMs run with NumPy from `models/lstm/*.npz`).
+* `requirements-train.txt`: everything needed to download data and retrain all models.
 
 ```bash
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-train.txt                  # or requirements.txt to only run the app
 
 # 1. Get the data (about 20 minutes; resumes if interrupted)
 python download_weather_data.py                        # makes rainfall_raw_data.zip
@@ -71,6 +75,18 @@ bash run_pipeline.sh rainfall_raw_data.zip
 # 3. Open the dashboard
 streamlit run app.py
 ```
+
+## Put the dashboard online (free)
+
+The app runs on [Streamlit Community Cloud](https://share.streamlit.io) straight from this repository:
+
+1. Sign in at share.streamlit.io with the GitHub account that owns this repository.
+2. Click **Create app**, then **Deploy a public app from GitHub**.
+3. Repository `KnightByte-IO/Weather-Prediction-Forecast-Model`, branch `main`, main file `app.py`.
+4. Under **Advanced settings**, choose Python 3.12. Optionally pick a short app URL.
+5. Click **Deploy**. The first build takes about 5 minutes.
+
+`requirements.txt` and `packages.txt` are what the host installs. Free apps go to sleep after a period without visitors; opening the link and clicking the wake-up button brings them back in about a minute.
 
 ## How the live forecast works
 1. The app downloads the last 40 days of hourly weather plus the official 7-day forecast for the chosen place (Open-Meteo forecast API, no key needed).
